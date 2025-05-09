@@ -13,7 +13,7 @@ pacman = " © "
 pontos = 0
 nome = input("Insira o seu nome: ")
 data = datetime.datetime.now()
-status = False
+status = "Morreu"
 cabecalho = ["Nome", "Pontos", "Data", "Status"]
 lista = []
 
@@ -81,7 +81,7 @@ def ganhou():
   if pontos == 855:
     print("Voce ganhou")
     print(f"Pontuação final: {pontos}")
-    status = True
+    status = "Venceu"
     salva()
     exit()
    
