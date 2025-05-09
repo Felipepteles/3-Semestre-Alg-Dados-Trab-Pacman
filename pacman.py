@@ -71,7 +71,9 @@ def morreu():
   exit()
   
 def comeu():
+  global pontos
   matriz[posicaoX][posicaoY] = "   "
+  pontos += 15
   
   
 def ganhou():
@@ -86,14 +88,12 @@ def ganhou():
 def setas(tecla):
   global posicaoX
   global posicaoY
-  global pontos
   
   if tecla == Key.up:
     colisaoFuturo = colisao(posicaoX - 1, posicaoY)
     if colisaoFuturo == 0:
       posicaoX = posicaoX - 1
     elif colisaoFuturo == 2:
-      pontos += 15
       posicaoX = posicaoX - 1
       comeu()
     elif colisaoFuturo == 3:
@@ -106,7 +106,6 @@ def setas(tecla):
     if colisaoFuturo == 0:
       posicaoY = posicaoY - 1
     elif colisaoFuturo == 2:
-      pontos += 15
       posicaoY = posicaoY - 1
       comeu()
     elif colisaoFuturo == 3:
@@ -118,7 +117,6 @@ def setas(tecla):
     if colisaoFuturo == 0:
       posicaoY = posicaoY + 1
     elif colisaoFuturo == 2:
-      pontos += 15
       posicaoY = posicaoY + 1
       comeu()
     elif colisaoFuturo == 3:
@@ -130,7 +128,6 @@ def setas(tecla):
     if colisaoFuturo == 0:
       posicaoX = posicaoX + 1
     elif colisaoFuturo == 2:
-      pontos += 15
       posicaoX = posicaoX + 1
       comeu()
     elif colisaoFuturo == 3:
