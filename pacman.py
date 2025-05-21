@@ -3,6 +3,7 @@ from pynput.keyboard import Key
 import datetime
 import os
 import csv
+import random  
 
 posicaoX = 5
 posicaoY = 5
@@ -18,125 +19,157 @@ cabecalho = ["Nome", "Pontos", "Data", "Status"]
 lista = []
 
 matriz = [
-  [" 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"],
-  [" 🟦"," 👻"," ▫ "," ▫ "," ▫ "," 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"],
-  [" 🟦"," ▫ "," 🟦"," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," 🟦"," ▫ "," 🟦"],
-  [" 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"],
-  [" 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," 🟦"," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"],
-  [" 🟦"," ▫ "," 🟦"," ▫ "," ▫ ","   "," ▫ "," ▫ "," 🟦"," ▫ "," 🟦"],
-  [" 🟦"," ▫ "," 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"," ▫ "," 🟦"],
-  [" 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"],
-  [" 🟦"," 🟦"," 🟦"," ▫ "," ▫ "," 🟦"," ▫ "," ▫ "," 🟦"," 🟦"," 🟦"],
-  [" 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"," ▫ "," ▫ "," ▫ "," 👻"," 🟦"],
-  [" 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"]
+    [" 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"],
+    [" 🟦"," 👻"," ▫ "," ▫ "," ▫ "," 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"],
+    [" 🟦"," ▫ "," 🟦"," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," 🟦"," ▫ "," 🟦"],
+    [" 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"],
+    [" 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," 🟦"," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"],
+    [" 🟦"," ▫ "," 🟦"," ▫ "," ▫ ","   "," ▫ "," ▫ "," 🟦"," ▫ "," 🟦"],
+    [" 🟦"," ▫ "," 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"," ▫ "," 🟦"],
+    [" 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"],
+    [" 🟦"," 🟦"," 🟦"," ▫ "," ▫ "," 🟦"," ▫ "," ▫ "," 🟦"," 🟦"," 🟦"],
+    [" 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"," ▫ "," ▫ "," ▫ "," 👻"," 🟦"],
+    [" 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"]
 ]
 
-with open('lista.csv', mode='r') as arq:
-  csvfile = csv.DictReader(arq)
-  for linha in csvfile:
-    lista.append(linha)
+fantasmas_info = {}  
+
+if os.path.exists("lista.csv"):
+    with open('lista.csv', mode='r') as arq:
+        csvfile = csv.DictReader(arq)
+        for linha in csvfile:
+            lista.append(linha)
 
 def salva():
-  with open('lista.csv', 'w', newline='') as csvfile:
-    writer = csv.DictWriter(csvfile, fieldnames=cabecalho)
-    writer.writeheader()
-    writer.writerows(lista)
-    writer.writerow({'Nome': nome, 'Pontos': pontos, "Data": data, "Status": status})
+    with open('lista.csv', 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=cabecalho)
+        writer.writeheader()
+        writer.writerows(lista)
+        writer.writerow({'Nome': nome, 'Pontos': pontos, "Data": data, "Status": status})
 
-def tabela(X, Y):
-  os.system("cls")
-  print(f"Pontos: {pontos}")
-  for i, linha in enumerate(matriz):
-    for j, coluna in enumerate(linha):
-      if j == Y and i == X:
-        print(pacman, end="")
-      else:
-        print(coluna, end="")
-    print("\n") 
-  ganhou()
-    
-def colisao(X, Y):
-  if matriz[X][Y] == parede:
-    return 1
-  if matriz[X][Y] == comida:
-    return 2
-  if matriz[X][Y] == fantasma:
-    return 3
-  else:
+def tabela(posicao_pacman_X, posicao_pacman_Y):
+    os.system("cls" if os.name == "nt" else "clear")
+    print(f"Pontos: {pontos}")
+    for linha in range(len(matriz)):
+        for coluna in range(len(matriz[linha])):
+            if linha == posicao_pacman_X and coluna == posicao_pacman_Y:
+                print(pacman, end="")
+            else:
+                print(matriz[linha][coluna], end="")
+        print()
+    ganhou()
+
+def colisao(linha, coluna):
+    if matriz[linha][coluna] == parede:
+        return 1
+    if matriz[linha][coluna] == comida:
+        return 2
+    if matriz[linha][coluna] == fantasma:
+        return 3
     return 0
-  
+
 def morreu():
-  print("Morreu otario")
-  salva()
-  exit()
-  
-def comeu():
-  global pontos
-  matriz[posicaoX][posicaoY] = "   "
-  pontos += 15
-  
-  
-def ganhou():
-  global status
-  if pontos == 855:
-    print("Voce ganhou")
-    print(f"Pontuação final: {pontos}")
-    status = "Venceu"
+    print("Morreu otário")
     salva()
     exit()
-   
+
+def comeu():
+    global pontos
+    matriz[posicaoX][posicaoY] = "   "
+    pontos += 15
+
+def ganhou():
+    global status
+    if pontos == 855:
+        print("Você ganhou!")
+        print(f"Pontuação final: {pontos}")
+        status = "Venceu"
+        salva()
+        exit()
+
+def mover_fantasmas():
+    global fantasmas_info
+
+    direcoes_possiveis = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    novas_posicoes = {}
+    novas_infos = {}
+
+    fantasmas_posicoes = list(fantasmas_info.keys()) if fantasmas_info else []
+
+    if not fantasmas_info:
+        for linha in range(len(matriz)):
+            for coluna in range(len(matriz[linha])):
+                if matriz[linha][coluna] == fantasma:
+                    fantasmas_info[(linha, coluna)] = comida if comida == matriz[linha][coluna] else "   "
+
+    for (linha_atual, coluna_atual) in list(fantasmas_info.keys()):
+        conteudo_anterior = fantasmas_info[(linha_atual, coluna_atual)]
+        random.shuffle(direcoes_possiveis)
+
+        for deslocamento_linha, deslocamento_coluna in direcoes_possiveis:
+            nova_linha = linha_atual + deslocamento_linha
+            nova_coluna = coluna_atual + deslocamento_coluna
+
+            if (0 <= nova_linha < len(matriz) and 0 <= nova_coluna < len(matriz[0])):
+                destino = matriz[nova_linha][nova_coluna]
+                destino_vazio = destino in ["   ", comida]
+                destino_ocupado = (nova_linha, nova_coluna) in novas_posicoes
+
+                if destino_vazio and not destino_ocupado:
+                    if nova_linha == posicaoX and nova_coluna == posicaoY:
+                        morreu()
+
+                    matriz[linha_atual][coluna_atual] = conteudo_anterior
+                    novas_infos[(nova_linha, nova_coluna)] = matriz[nova_linha][nova_coluna]
+                    novas_posicoes[(nova_linha, nova_coluna)] = fantasma
+                    break
+                elif nova_linha == posicaoX and nova_coluna == posicaoY:
+                    morreu()
+        else:
+            novas_posicoes[(linha_atual, coluna_atual)] = fantasma
+            novas_infos[(linha_atual, coluna_atual)] = conteudo_anterior
+
+    fantasmas_info = novas_infos
+    for (linha, coluna), simbolo in novas_posicoes.items():
+        matriz[linha][coluna] = simbolo
+
 def setas(tecla):
-  global posicaoX
-  global posicaoY
-  
-  if tecla == Key.up:
-    colisaoFuturo = colisao(posicaoX - 1, posicaoY)
-    if colisaoFuturo == 0:
-      posicaoX = posicaoX - 1
-    elif colisaoFuturo == 2:
-      posicaoX = posicaoX - 1
-      comeu()
-    elif colisaoFuturo == 3:
-      morreu()
+    global posicaoX, posicaoY
+
+    deslocamento_linha = 0
+    deslocamento_coluna = 0
+
+    if tecla == Key.up:
+        deslocamento_linha = -1
+    elif tecla == Key.down:
+        deslocamento_linha = 1
+    elif tecla == Key.left:
+        deslocamento_coluna = -1
+    elif tecla == Key.right:
+        deslocamento_coluna = 1
+    elif tecla == Key.esc:
+        exit()
+    else:
+        return
+
+    nova_posicaoX = posicaoX + deslocamento_linha
+    nova_posicaoY = posicaoY + deslocamento_coluna
+
+    tipo_colisao = colisao(nova_posicaoX, nova_posicaoY)
+
+    if tipo_colisao == 0:
+        posicaoX = nova_posicaoX
+        posicaoY = nova_posicaoY
+    elif tipo_colisao == 2:
+        posicaoX = nova_posicaoX
+        posicaoY = nova_posicaoY
+        comeu()
+    elif tipo_colisao == 3:
+        morreu()
+
+    mover_fantasmas()
     tabela(posicaoX, posicaoY)
-    
-    
-  elif tecla == Key.left:
-    colisaoFuturo = colisao(posicaoX, posicaoY - 1)
-    if colisaoFuturo == 0:
-      posicaoY = posicaoY - 1
-    elif colisaoFuturo == 2:
-      posicaoY = posicaoY - 1
-      comeu()
-    elif colisaoFuturo == 3:
-      morreu()
-    tabela(posicaoX, posicaoY)
-    
-  elif tecla == Key.right:
-    colisaoFuturo = colisao(posicaoX, posicaoY + 1)
-    if colisaoFuturo == 0:
-      posicaoY = posicaoY + 1
-    elif colisaoFuturo == 2:
-      posicaoY = posicaoY + 1
-      comeu()
-    elif colisaoFuturo == 3:
-      morreu()
-    tabela(posicaoX, posicaoY)
-    
-  elif tecla == Key.down:
-    colisaoFuturo =colisao(posicaoX + 1, posicaoY)
-    if colisaoFuturo == 0:
-      posicaoX = posicaoX + 1
-    elif colisaoFuturo == 2:
-      posicaoX = posicaoX + 1
-      comeu()
-    elif colisaoFuturo == 3:
-      morreu()
-    tabela(posicaoX, posicaoY)
-    
-  elif tecla == Key.esc:
-    exit()
-        
+
 tabela(posicaoX, posicaoY)
 with keyboard.Listener(on_release=setas) as listener:
-  listener.join()
+    listener.join()
