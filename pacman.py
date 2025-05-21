@@ -1,4 +1,3 @@
-from pynput import keyboard
 from pynput.keyboard import Key
 import datetime
 import os
@@ -13,7 +12,6 @@ comida = " ▫ "
 fantasma = " 👻"
 pacman = " © "
 pontos = 0
-nome = input("Insira o seu nome: ")
 data = datetime.datetime.now()
 status = "Morreu"
 cabecalho = ["Nome", "Pontos", "Data", "Status"]
@@ -37,7 +35,22 @@ fantasmas_info = {}
 
 janela = tk.Tk()
 janela.title("PAC-MAN")
+
+frame_superior = tk.Frame(janela)
+frame_superior.pack()
+
+label_nome = tk.Label(frame_superior, text="Nome:")
+label_nome.pack(side=tk.LEFT)
+
+nome = tk.Entry(frame_superior)
+nome.pack(side=tk.LEFT)
+
+
+pontuacao_label = tk.Label(janela, text=f"Pontos: {pontos}", font=("Arial", 12))
+pontuacao_label.pack()
+
 texto = tk.Text(janela)
+texto.pack()
 
 
 if os.path.exists("lista.csv"):
@@ -51,11 +64,10 @@ def salva():
         writer = csv.DictWriter(csvfile, fieldnames=cabecalho)
         writer.writeheader()
         writer.writerows(lista)
-        writer.writerow({'Nome': nome, 'Pontos': pontos, "Data": data, "Status": status})
+        writer.writerow({'Nome': nome.get(), 'Pontos': pontos, "Data": data, "Status": status})
 
 def tabela(posicao_pacman_X, posicao_pacman_Y):
     texto_matriz = ""
-    os.system("cls" if os.name == "nt" else "clear")
     print(f"Pontos: {pontos}")
     for linha in range(len(matriz)):
         for coluna in range(len(matriz[linha])):
@@ -85,12 +97,13 @@ def colisao(linha, coluna):
 def morreu():
     print("Morreu otário")
     salva()
-    exit()
+    janela.quit()
 
 def comeu():
     global pontos
     matriz[posicaoX][posicaoY] = "   "
     pontos += 15
+    pontuacao_label.config(text=f"Pontos: {pontos}")
 
 def ganhou():
     global status
@@ -99,7 +112,7 @@ def ganhou():
         print(f"Pontuação final: {pontos}")
         status = "Venceu"
         salva()
-        exit()
+        janela.quit()
 
 def mover_fantasmas():
     global fantasmas_info
@@ -186,5 +199,4 @@ def setas(tecla):
 tabela(posicaoX, posicaoY)
 janela.bind("<KeyPress>", setas)
 janela.mainloop()
-with keyboard.Listener(on_release=setas) as listener:
-    listener.join()
+
