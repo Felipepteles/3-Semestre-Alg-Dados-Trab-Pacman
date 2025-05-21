@@ -4,6 +4,7 @@ import datetime
 import os
 import csv
 import random  
+import tkinter as tk
 
 posicaoX = 5
 posicaoY = 5
@@ -23,8 +24,8 @@ matriz = [
     [" 🟦"," 👻"," ▫ "," ▫ "," ▫ "," 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"],
     [" 🟦"," ▫ "," 🟦"," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," 🟦"," ▫ "," 🟦"],
     [" 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"],
-    [" 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," 🟦"," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"],
-    [" 🟦"," ▫ "," 🟦"," ▫ "," ▫ ","   "," ▫ "," ▫ "," 🟦"," ▫ "," 🟦"],
+    [" 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"],
+    [" 🟦"," ▫ "," ▫ "," ▫ "," ▫ ","   "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"],
     [" 🟦"," ▫ "," 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"," ▫ "," 🟦"],
     [" 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"],
     [" 🟦"," 🟦"," 🟦"," ▫ "," ▫ "," 🟦"," ▫ "," ▫ "," 🟦"," 🟦"," 🟦"],
@@ -33,6 +34,11 @@ matriz = [
 ]
 
 fantasmas_info = {}  
+
+janela = tk.Tk()
+janela.title("PAC-MAN")
+texto = tk.Text(janela)
+
 
 if os.path.exists("lista.csv"):
     with open('lista.csv', mode='r') as arq:
@@ -48,16 +54,24 @@ def salva():
         writer.writerow({'Nome': nome, 'Pontos': pontos, "Data": data, "Status": status})
 
 def tabela(posicao_pacman_X, posicao_pacman_Y):
+    texto_matriz = ""
     os.system("cls" if os.name == "nt" else "clear")
     print(f"Pontos: {pontos}")
     for linha in range(len(matriz)):
         for coluna in range(len(matriz[linha])):
             if linha == posicao_pacman_X and coluna == posicao_pacman_Y:
                 print(pacman, end="")
+                texto_matriz += pacman
             else:
                 print(matriz[linha][coluna], end="")
+                texto_matriz += matriz[linha][coluna]
         print()
+        texto_matriz += "\n"
+        
     ganhou()
+    texto.delete("0.0", tk.END)
+    texto.insert(tk.END, texto_matriz)
+    texto.pack()
 
 def colisao(linha, coluna):
     if matriz[linha][coluna] == parede:
@@ -80,7 +94,7 @@ def comeu():
 
 def ganhou():
     global status
-    if pontos == 855:
+    if pontos == 900:
         print("Você ganhou!")
         print(f"Pontuação final: {pontos}")
         status = "Venceu"
@@ -135,19 +149,18 @@ def mover_fantasmas():
 
 def setas(tecla):
     global posicaoX, posicaoY
-
     deslocamento_linha = 0
     deslocamento_coluna = 0
 
-    if tecla == Key.up:
+    if tecla.keysym == "Up":
         deslocamento_linha = -1
-    elif tecla == Key.down:
+    elif tecla.keysym == "Down":
         deslocamento_linha = 1
-    elif tecla == Key.left:
+    elif tecla.keysym == "Left":
         deslocamento_coluna = -1
-    elif tecla == Key.right:
+    elif tecla.keysym == "Right":
         deslocamento_coluna = 1
-    elif tecla == Key.esc:
+    elif tecla.keysym == "Escape":
         exit()
     else:
         return
@@ -171,5 +184,7 @@ def setas(tecla):
     tabela(posicaoX, posicaoY)
 
 tabela(posicaoX, posicaoY)
+janela.bind("<KeyPress>", setas)
+janela.mainloop()
 with keyboard.Listener(on_release=setas) as listener:
     listener.join()
