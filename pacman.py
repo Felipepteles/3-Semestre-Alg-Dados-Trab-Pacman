@@ -4,6 +4,8 @@ import os
 import csv
 import random  
 import tkinter as tk
+from tkinter import messagebox
+
 
 posicaoX = 5
 posicaoY = 5
@@ -95,9 +97,8 @@ def colisao(linha, coluna):
     return 0
 
 def morreu():
-    print("Morreu otário")
     salva()
-    janela.quit()
+    messagebox.showinfo("Fim de jogo", f"Você morreu!\nPontuação final: {pontos}")
 
 def comeu():
     global pontos
@@ -108,11 +109,9 @@ def comeu():
 def ganhou():
     global status
     if pontos == 900:
-        print("Você ganhou!")
-        print(f"Pontuação final: {pontos}")
         status = "Venceu"
         salva()
-        janela.quit()
+        messagebox.showinfo("Parabéns!", f"Você venceu!\nPontuação final: {pontos}")
 
 def mover_fantasmas():
     global fantasmas_info
