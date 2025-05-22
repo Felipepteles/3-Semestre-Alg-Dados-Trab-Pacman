@@ -1,27 +1,30 @@
-from pynput.keyboard import Key
 import datetime
 import os
 import csv
 import random  
 import tkinter as tk
 from tkinter import messagebox
-
+from PIL import Image, ImageTk
 
 posicaoX = 5
 posicaoY = 5
+nome = ""
 parede = " 🟦"
 comida = " ▫ "
 fantasma = " 👻"
 pacman = " © "
 pontos = 0
 data = datetime.datetime.now()
-status = "Morreu"
-cabecalho = ["Nome", "Pontos", "Data", "Status"]
+status = "Perdeu"
+cabecalho = ["Nome", "Pontos", "Duracao", "Status"]
 lista = []
+fantasmas_info = {}  
+width = 660
+height = 660
 
 matriz = [
     [" 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"],
-    [" 🟦"," 👻"," ▫ "," ▫ "," ▫ "," 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"],
+    [" 🟦"," 👻"," ▫ "," ▫ "," ▫ "," 🟦"," ▫ "," ▫ "," ▫ "," 👻"," 🟦"],
     [" 🟦"," ▫ "," 🟦"," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," 🟦"," ▫ "," 🟦"],
     [" 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"],
     [" 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"],
@@ -29,63 +32,45 @@ matriz = [
     [" 🟦"," ▫ "," 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"," ▫ "," 🟦"],
     [" 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"],
     [" 🟦"," 🟦"," 🟦"," ▫ "," ▫ "," 🟦"," ▫ "," ▫ "," 🟦"," 🟦"," 🟦"],
-    [" 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"," ▫ "," ▫ "," ▫ "," 👻"," 🟦"],
+    [" 🟦"," 👻"," ▫ "," ▫ "," ▫ "," 🟦"," ▫ "," ▫ "," ▫ "," 👻"," 🟦"],
     [" 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"]
 ]
 
-fantasmas_info = {}  
 
-janela = tk.Tk()
-janela.title("PAC-MAN")
+def ler_csv():
+    if os.path.exists("lista.csv"):
+        with open('lista.csv', mode='r') as arq:
+            csvfile = csv.DictReader(arq)
+            for linha in csvfile:
+                lista.append(linha)
 
-frame_superior = tk.Frame(janela)
-frame_superior.pack()
-
-label_nome = tk.Label(frame_superior, text="Nome:")
-label_nome.pack(side=tk.LEFT)
-
-nome = tk.Entry(frame_superior)
-nome.pack(side=tk.LEFT)
-
-
-pontuacao_label = tk.Label(janela, text=f"Pontos: {pontos}", font=("Arial", 12))
-pontuacao_label.pack()
-
-texto = tk.Text(janela)
-texto.pack()
-
-
-if os.path.exists("lista.csv"):
-    with open('lista.csv', mode='r') as arq:
-        csvfile = csv.DictReader(arq)
-        for linha in csvfile:
-            lista.append(linha)
-
-def salva():
+def salva_csv():
+    fim_partida = datetime.datetime.now()
+    duracao = fim_partida - inicio_partida
     with open('lista.csv', 'w', newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=cabecalho)
         writer.writeheader()
         writer.writerows(lista)
-        writer.writerow({'Nome': nome.get(), 'Pontos': pontos, "Data": data, "Status": status})
+        writer.writerow({'Nome': nome.get(), 'Pontos': pontos, "Duracao": str(duracao).split(".")[0], "Status": status})
 
 def tabela(posicao_pacman_X, posicao_pacman_Y):
-    texto_matriz = ""
-    print(f"Pontos: {pontos}")
+    canvas.delete("all")
     for linha in range(len(matriz)):
         for coluna in range(len(matriz[linha])):
+            cofx = tamanhox * coluna
+            cofy = tamanhoy * linha
             if linha == posicao_pacman_X and coluna == posicao_pacman_Y:
-                print(pacman, end="")
-                texto_matriz += pacman
+                caractere = pacman
+                canvas.create_image(cofx, cofy, image=pacmanpng, anchor="nw")
             else:
-                print(matriz[linha][coluna], end="")
-                texto_matriz += matriz[linha][coluna]
-        print()
-        texto_matriz += "\n"
-        
+                caractere = matriz[linha][coluna]
+                if caractere == fantasma:
+                    canvas.create_image(cofx, cofy, image=fantasmapng, anchor="nw")
+                elif caractere == parede:
+                    canvas.create_image(cofx, cofy, image=paredepng, anchor="nw")
+                elif caractere == comida:
+                    canvas.create_image(cofx, cofy, image=comidapng, anchor="nw")
     ganhou()
-    texto.delete("0.0", tk.END)
-    texto.insert(tk.END, texto_matriz)
-    texto.pack()
 
 def colisao(linha, coluna):
     if matriz[linha][coluna] == parede:
@@ -96,9 +81,10 @@ def colisao(linha, coluna):
         return 3
     return 0
 
-def morreu():
-    salva()
-    messagebox.showinfo("Fim de jogo", f"Você morreu!\nPontuação final: {pontos}")
+def perdeu():
+    salva_csv()
+    messagebox.showinfo("Fim de jogo", f"Você perdeu!\nPontuação final: {pontos}")
+    exit()
 
 def comeu():
     global pontos
@@ -108,10 +94,11 @@ def comeu():
 
 def ganhou():
     global status
-    if pontos == 900:
+    if pontos == 870:
         status = "Venceu"
-        salva()
+        salva_csv()
         messagebox.showinfo("Parabéns!", f"Você venceu!\nPontuação final: {pontos}")
+        exit()
 
 def mover_fantasmas():
     global fantasmas_info
@@ -143,14 +130,14 @@ def mover_fantasmas():
 
                 if destino_vazio and not destino_ocupado:
                     if nova_linha == posicaoX and nova_coluna == posicaoY:
-                        morreu()
+                        perdeu()
 
                     matriz[linha_atual][coluna_atual] = conteudo_anterior
                     novas_infos[(nova_linha, nova_coluna)] = matriz[nova_linha][nova_coluna]
                     novas_posicoes[(nova_linha, nova_coluna)] = fantasma
                     break
                 elif nova_linha == posicaoX and nova_coluna == posicaoY:
-                    morreu()
+                    perdeu()
         else:
             novas_posicoes[(linha_atual, coluna_atual)] = fantasma
             novas_infos[(linha_atual, coluna_atual)] = conteudo_anterior
@@ -190,12 +177,91 @@ def setas(tecla):
         posicaoY = nova_posicaoY
         comeu()
     elif tipo_colisao == 3:
-        morreu()
+        perdeu()
 
     mover_fantasmas()
     tabela(posicaoX, posicaoY)
+    
+def exibir_ranking():
+    if not lista:
+        messagebox.showinfo("Ranking", "Nenhum dado encontrado.")
+        return
+    messagebox.showinfo("Ranking dos Jogadores")
 
-tabela(posicaoX, posicaoY)
-janela.bind("<KeyPress>", setas)
+def exibir_instrucoes():
+    texto = (
+        "Instruções do Jogo:\n\n"
+        "- Use as teclas de seta (↑ ↓ ← →) para mover o Pac-Man.\n"
+        "- Colete todas as comidas para vencer.\n"
+        "- Evite os fantasmas, se colidir com um, você perde.\n"
+        "- Cada comida vale 15 pontos.\n"
+        "- Pontuação máxima: 870 pontos.\n"
+        "- Pressione ESC para sair a qualquer momento."
+    )
+    messagebox.showinfo("Instruções", texto)
+
+def iniciar_jogo():
+    global inicio_partida
+    inicio_partida = datetime.datetime.now()
+    frame_menu.pack_forget()
+    frame_superior.pack()
+    pontuacao_label.pack()
+    canvas.pack()
+    tabela(posicaoX, posicaoY)
+    janela.bind("<KeyPress>", setas)
+    
+def menu():
+    global frame_menu, nome, botao_iniciar, botao_ranking, botao_instrucoes
+
+    frame_menu = tk.Frame(janela)
+    frame_menu.pack(pady=50)
+
+    titulo = tk.Label(frame_menu, text="PAC-MAN", font=("Arial", 20, "bold"))
+    titulo.pack(pady=10)
+
+    label_nome = tk.Label(frame_menu, text="Digite seu nome:", font=("Arial", 14))
+    label_nome.pack(pady=(20, 5))
+
+    nome = tk.Entry(frame_menu, font=("Arial", 14), justify="center")
+    nome.pack(pady=(0, 20))
+
+    botao_iniciar = tk.Button(frame_menu, text="▶ Iniciar Jogo", font=("Arial", 14), width=20, command=iniciar_jogo)
+    botao_iniciar.pack(pady=10)
+
+    botao_ranking = tk.Button(frame_menu, text="🏆 Ver Ranking", font=("Arial", 14), width=20, command=exibir_ranking)
+    botao_ranking.pack(pady=10)
+
+    botao_instrucoes = tk.Button(frame_menu, text="📜 Instruções", font=("Arial", 14), width=20, command=exibir_instrucoes)
+    botao_instrucoes.pack(pady=10)
+
+    frame_superior.pack_forget()
+    pontuacao_label.pack_forget()
+    canvas.pack_forget()
+
+def exibir_janela():
+    global janela, frame_superior, pontuacao_label, canvas
+    global fantasmapng, pacmanpng, comidapng, paredepng
+    global tamanhox, tamanhoy
+    
+    janela = tk.Tk()
+    janela.title("PAC-MAN")
+
+    frame_superior = tk.Frame(janela)
+    frame_superior.pack()
+
+    pontuacao_label = tk.Label(janela, text=f"Pontos: {pontos}", font=("Arial", 22))
+    pontuacao_label.pack()
+
+    canvas = tk.Canvas(janela, width=width, height=height, bg="black")
+    canvas.pack()
+
+    tamanhox = int(width / 11)
+    tamanhoy = int(height / 11)
+    fantasmapng = ImageTk.PhotoImage(Image.open("img/fantasma.png").resize((tamanhox,tamanhoy)))
+    pacmanpng = ImageTk.PhotoImage(Image.open("img/pacman.png").resize((tamanhox,tamanhoy)))
+    comidapng = ImageTk.PhotoImage(Image.open("img/food.png").resize((tamanhox,tamanhoy)))
+    paredepng = ImageTk.PhotoImage(Image.open("img/parede.png").resize((tamanhox,tamanhoy)))
+    
+exibir_janela()
+menu()
 janela.mainloop()
-

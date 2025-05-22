@@ -1,15 +1,17 @@
-#Nomes na interface
-#Pontuação na interface
-#Centralizar o mapa na interface
-#Trocar de texto para img
+Nomes na interface
+Mensagem de vitoria e derrota na interface
+Pontuação na interface
+Trocar de texto para img
+Centralizar o mapa na interface
+Menu do jogo
+Botao de iniciar o jogo
+Instruções
+Alterar armazenamento de data para duracao da partida
+
+##Ranking de jogadores com vitoria e menor tempo
+
 #Fantasma seguir o pacman
 #Fantasma movimentar overtime
-#Botao de iniciar o jogo
-#Botao de fechar o jogo
-#Menu do jogo
-#Instruções
-#Ranking de jogadores
 #Movimento continuo pacman
 #Abertura lateral do mapa atravessando para o outro lado
-#Mensagem de vitoria e derrota na interface
 #Adicionar comida especial que triplica a quantidade de pontos durante um tempo
