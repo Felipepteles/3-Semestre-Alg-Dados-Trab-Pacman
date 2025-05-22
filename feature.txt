@@ -8,6 +8,8 @@ Botao de iniciar o jogo
 Instruções
 Alterar armazenamento de data para duracao da partida
 
+
+
 ##Ranking de jogadores com vitoria e menor tempo
 
 #Fantasma seguir o pacman
@@ -15,3 +17,5 @@ Alterar armazenamento de data para duracao da partida
 #Movimento continuo pacman
 #Abertura lateral do mapa atravessando para o outro lado
 #Adicionar comida especial que triplica a quantidade de pontos durante um tempo
+#rotacionar o pacman
+#ajustes no morreu

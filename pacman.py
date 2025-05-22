@@ -14,7 +14,6 @@ comida = " ▫ "
 fantasma = " 👻"
 pacman = " © "
 pontos = 0
-data = datetime.datetime.now()
 status = "Perdeu"
 cabecalho = ["Nome", "Pontos", "Duracao", "Status"]
 lista = []
@@ -212,7 +211,7 @@ def iniciar_jogo():
     
 def menu():
     global frame_menu, nome, botao_iniciar, botao_ranking, botao_instrucoes
-
+    ler_csv()
     frame_menu = tk.Frame(janela)
     frame_menu.pack(pady=50)
 
