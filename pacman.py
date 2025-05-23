@@ -12,9 +12,11 @@ nome = ""
 parede = " 🟦"
 comida = " ▫ "
 fantasma = " 👻"
-pacman = " © "
+cereja = "🍒"
+pacman_atual = None
 pontos = 0
-status = "Perdeu"
+status = None
+velocidade = 550
 cabecalho = ["Nome", "Pontos", "Duracao", "Status"]
 lista = []
 fantasmas_info = {}  
@@ -23,15 +25,15 @@ height = 660
 
 matriz = [
     [" 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"],
-    [" 🟦"," 👻"," ▫ "," ▫ "," ▫ "," 🟦"," ▫ "," ▫ "," ▫ "," 👻"," 🟦"],
+    [" 🟦"," 👻"," ▫ "," ▫ ","🍒"," 🟦"," ▫ "," ▫ "," ▫ "," 👻"," 🟦"],
     [" 🟦"," ▫ "," 🟦"," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," 🟦"," ▫ "," 🟦"],
     [" 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"],
     [" 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"],
-    [" 🟦"," ▫ "," ▫ "," ▫ "," ▫ ","   "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"],
+    [" "," ▫ "," ▫ "," ▫ "," ▫ ","   "," ▫ "," ▫ "," ▫ "," ▫ "," "],
     [" 🟦"," ▫ "," 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"," ▫ "," 🟦"],
     [" 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"],
-    [" 🟦"," 🟦"," 🟦"," ▫ "," ▫ "," 🟦"," ▫ "," ▫ "," 🟦"," 🟦"," 🟦"],
-    [" 🟦"," 👻"," ▫ "," ▫ "," ▫ "," 🟦"," ▫ "," ▫ "," ▫ "," 👻"," 🟦"],
+    [" 🟦"," ▫ "," 🟦"," ▫ "," ▫ "," 🟦"," ▫ "," ▫ "," 🟦"," ▫ "," 🟦"],
+    [" 🟦"," 👻"," ▫ "," ▫ "," ▫ "," 🟦","🍒"," ▫ "," ▫ "," 👻"," 🟦"],
     [" 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"]
 ]
 
@@ -58,9 +60,9 @@ def tabela(posicao_pacman_X, posicao_pacman_Y):
         for coluna in range(len(matriz[linha])):
             cofx = tamanhox * coluna
             cofy = tamanhoy * linha
-            if linha == posicao_pacman_X and coluna == posicao_pacman_Y:
-                caractere = pacman
-                canvas.create_image(cofx, cofy, image=pacmanpng, anchor="nw")
+            if status != "Perdeu" and linha == posicao_pacman_X and coluna == posicao_pacman_Y:
+                caractere = pacman_atual
+                canvas.create_image(cofx, cofy, image=pacman_atual, anchor="nw")
             else:
                 caractere = matriz[linha][coluna]
                 if caractere == fantasma:
@@ -69,7 +71,10 @@ def tabela(posicao_pacman_X, posicao_pacman_Y):
                     canvas.create_image(cofx, cofy, image=paredepng, anchor="nw")
                 elif caractere == comida:
                     canvas.create_image(cofx, cofy, image=comidapng, anchor="nw")
-    ganhou()
+                elif caractere == cereja:
+                    canvas.create_image(cofx, cofy, image=cerejapng, anchor="nw")
+    if status != "Venceu":
+        ganhou()
 
 def colisao(linha, coluna):
     if matriz[linha][coluna] == parede:
@@ -78,22 +83,38 @@ def colisao(linha, coluna):
         return 2
     if matriz[linha][coluna] == fantasma:
         return 3
+    if matriz[linha][coluna] == cereja:
+        return 4
     return 0
 
 def perdeu():
+    global status
+    status = "Perdeu"
+    tabela(posicaoX, posicaoY)
     salva_csv()
     messagebox.showinfo("Fim de jogo", f"Você perdeu!\nPontuação final: {pontos}")
     exit()
 
 def comeu():
-    global pontos
-    matriz[posicaoX][posicaoY] = "   "
-    pontos += 15
-    pontuacao_label.config(text=f"Pontos: {pontos}")
+    global pontos, velocidade
+    if tipo_colisao == 2:
+        matriz[posicaoX][posicaoY] = "   "
+        pontos += 15
+        pontuacao_label.config(text=f"Pontos: {pontos}")
+    elif tipo_colisao == 4:
+        matriz[posicaoX][posicaoY] = "   "
+        pontos += 35
+        pontuacao_label.config(text=f"Pontos: {pontos}")
+        velocidade = 1100
+        janela.after(4000, restaura_velocidade)
 
+def restaura_velocidade():
+    global velocidade
+    velocidade = 550
+    
 def ganhou():
     global status
-    if pontos == 870:
+    if pontos >= 1000 and status != "Venceu":
         status = "Venceu"
         salva_csv()
         messagebox.showinfo("Parabéns!", f"Você venceu!\nPontuação final: {pontos}")
@@ -106,13 +127,14 @@ def mover_fantasmas():
     novas_posicoes = {}
     novas_infos = {}
 
-    fantasmas_posicoes = list(fantasmas_info.keys()) if fantasmas_info else []
+    #fantasmas_posicoes = list(fantasmas_info.keys()) if fantasmas_info else []
 
     if not fantasmas_info:
         for linha in range(len(matriz)):
             for coluna in range(len(matriz[linha])):
                 if matriz[linha][coluna] == fantasma:
-                    fantasmas_info[(linha, coluna)] = comida if comida == matriz[linha][coluna] else "   "
+                    fantasmas_info[(linha, coluna)] = comida
+
 
     for (linha_atual, coluna_atual) in list(fantasmas_info.keys()):
         conteudo_anterior = fantasmas_info[(linha_atual, coluna_atual)]
@@ -146,61 +168,83 @@ def mover_fantasmas():
         matriz[linha][coluna] = simbolo
 
 def setas(tecla):
-    global posicaoX, posicaoY
+    global posicaoX, posicaoY, tipo_colisao, pacman_atual
     deslocamento_linha = 0
     deslocamento_coluna = 0
 
     if tecla.keysym == "Up":
         deslocamento_linha = -1
+        pacman_atual = pacman_cimapng
     elif tecla.keysym == "Down":
         deslocamento_linha = 1
+        pacman_atual = pacman_baixopng
     elif tecla.keysym == "Left":
         deslocamento_coluna = -1
+        pacman_atual = pacman_esqpng
     elif tecla.keysym == "Right":
         deslocamento_coluna = 1
+        pacman_atual = pacman_dirpng
     elif tecla.keysym == "Escape":
         exit()
     else:
         return
-
+    
     nova_posicaoX = posicaoX + deslocamento_linha
     nova_posicaoY = posicaoY + deslocamento_coluna
+    
+    if nova_posicaoX == 5 and nova_posicaoY < 0:
+        nova_posicaoY = 10
+    elif nova_posicaoX == 5 and nova_posicaoY > 10:
+        nova_posicaoY = 0
 
     tipo_colisao = colisao(nova_posicaoX, nova_posicaoY)
 
     if tipo_colisao == 0:
         posicaoX = nova_posicaoX
         posicaoY = nova_posicaoY
-    elif tipo_colisao == 2:
+    elif tipo_colisao == 2 or tipo_colisao == 4:
         posicaoX = nova_posicaoX
         posicaoY = nova_posicaoY
         comeu()
     elif tipo_colisao == 3:
+        posicaoX = nova_posicaoX
+        posicaoY = nova_posicaoY
         perdeu()
-
-    mover_fantasmas()
     tabela(posicaoX, posicaoY)
     
 def exibir_ranking():
-    if not lista:
-        messagebox.showinfo("Ranking", "Nenhum dado encontrado.")
+    vencedores = [jogador for jogador in lista if jogador["Status"] == "Venceu"]
+    vencedores_ordenados = sorted(vencedores, key=lambda grupo: grupo['Duracao'])[:10]
+
+    if not vencedores_ordenados:
+        messagebox.showinfo("Ranking", "Nenhum jogador venceu ainda.")
         return
-    messagebox.showinfo("Ranking dos Jogadores")
+
+    ranking_texto = "🏆 Top 10 Jogadores Vencedores (Menor Tempo):\n\n"
+    for num, jogador in enumerate(vencedores_ordenados, start=1):
+        ranking_texto += f"{num}. {jogador['Nome']} - {jogador['Pontos']} pts - {jogador['Duracao']}\n"
+
+    messagebox.showinfo("Ranking", ranking_texto)
 
 def exibir_instrucoes():
-    texto = (
-        "Instruções do Jogo:\n\n"
-        "- Use as teclas de seta (↑ ↓ ← →) para mover o Pac-Man.\n"
-        "- Colete todas as comidas para vencer.\n"
-        "- Evite os fantasmas, se colidir com um, você perde.\n"
-        "- Cada comida vale 15 pontos.\n"
-        "- Pontuação máxima: 870 pontos.\n"
-        "- Pressione ESC para sair a qualquer momento."
-    )
+    texto = '''
+    Instruções do Jogo:\n\n
+        - Use as teclas de seta (↑ ↓ ← →) para mover o Pac-Man.\n
+        - Colete todas as comidas para vencer.\n
+        - Colete as comidas especiais para desacelerar os fantasmas durante 4s.\n
+        - Evite os fantasmas, se colidir com um, você perde.\n
+        - Cada comida vale 15 pontos.\n
+        - Cada comida especial vale 35 pontos.
+        - Pontuação máxima: 970 pontos.\n
+        - Pressione ESC para sair a qualquer momento.
+    '''
     messagebox.showinfo("Instruções", texto)
 
 def iniciar_jogo():
     global inicio_partida
+    if not nome.get().strip():
+        messagebox.showwarning("Nome obrigatório", "Por favor, digite seu nome antes de começar.")
+        return
     inicio_partida = datetime.datetime.now()
     frame_menu.pack_forget()
     frame_superior.pack()
@@ -208,12 +252,13 @@ def iniciar_jogo():
     canvas.pack()
     tabela(posicaoX, posicaoY)
     janela.bind("<KeyPress>", setas)
+    loop_fantasmas()
     
 def menu():
     global frame_menu, nome, botao_iniciar, botao_ranking, botao_instrucoes
     ler_csv()
     frame_menu = tk.Frame(janela)
-    frame_menu.pack(pady=50)
+    frame_menu.pack(padx=15)
 
     titulo = tk.Label(frame_menu, text="PAC-MAN", font=("Arial", 20, "bold"))
     titulo.pack(pady=10)
@@ -239,7 +284,7 @@ def menu():
 
 def exibir_janela():
     global janela, frame_superior, pontuacao_label, canvas
-    global fantasmapng, pacmanpng, comidapng, paredepng
+    global fantasmapng, pacman_atual, comidapng, paredepng, cerejapng, pacman_cimapng, pacman_baixopng, pacman_dirpng, pacman_esqpng
     global tamanhox, tamanhoy
     
     janela = tk.Tk()
@@ -257,10 +302,22 @@ def exibir_janela():
     tamanhox = int(width / 11)
     tamanhoy = int(height / 11)
     fantasmapng = ImageTk.PhotoImage(Image.open("img/fantasma.png").resize((tamanhox,tamanhoy)))
-    pacmanpng = ImageTk.PhotoImage(Image.open("img/pacman.png").resize((tamanhox,tamanhoy)))
+    pacman_cimapng = ImageTk.PhotoImage(Image.open("img/pacmanc.png").resize((tamanhox,tamanhoy)))
+    pacman_baixopng = ImageTk.PhotoImage(Image.open("img/pacmanb.png").resize((tamanhox,tamanhoy)))
+    pacman_esqpng = ImageTk.PhotoImage(Image.open("img/pacmane.png").resize((tamanhox,tamanhoy)))
+    pacman_dirpng = ImageTk.PhotoImage(Image.open("img/pacmand.png").resize((tamanhox,tamanhoy)))
     comidapng = ImageTk.PhotoImage(Image.open("img/food.png").resize((tamanhox,tamanhoy)))
     paredepng = ImageTk.PhotoImage(Image.open("img/parede.png").resize((tamanhox,tamanhoy)))
+    cerejapng = ImageTk.PhotoImage(Image.open("img/cereja.png").resize((tamanhox,tamanhoy)))
     
+    pacman_atual = pacman_dirpng
+      
+def loop_fantasmas():
+    mover_fantasmas()
+    tabela(posicaoX, posicaoY)
+    if status == None :
+        janela.after(velocidade, loop_fantasmas)
+
 exibir_janela()
 menu()
 janela.mainloop()

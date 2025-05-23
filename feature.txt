@@ -7,15 +7,13 @@ Menu do jogo
 Botao de iniciar o jogo
 Instruções
 Alterar armazenamento de data para duracao da partida
+Ranking de jogadores com vitoria e menor tempo
+Fantasma movimentar overtime loop
+Adicionar comida especial
+Padding Margin menu
+Abertura lateral do mapa atravessando para o outro lado
+Rotacionar o pacman
+Ajustes no morreu
 
 
-
-##Ranking de jogadores com vitoria e menor tempo
-
-#Fantasma seguir o pacman
-#Fantasma movimentar overtime
 #Movimento continuo pacman
-#Abertura lateral do mapa atravessando para o outro lado
-#Adicionar comida especial que triplica a quantidade de pontos durante um tempo
-#rotacionar o pacman
-#ajustes no morreu
