@@ -22,8 +22,8 @@ velocidade_fantasma = 550
 cabecalho = ["Nome", "Pontos", "Duracao", "Status"]
 lista = []
 fantasmas_info = {}  
-width = 800
-height = 800
+width = 660
+height = 660
 
 matriz = [
     ["🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦"],
@@ -210,12 +210,13 @@ def exibir_instrucoes():
     Instruções do Jogo:\n\n
         - Use as teclas de seta (↑ ↓ ← →) para mover o Pac-Man.\n
         - Colete todas as comidas para vencer.\n
-        - Colete as comidas especiais para desacelerar os fantasmas durante 4s.\n
+        - Colete as comidas especiais para desacelerar os\n
+          fantasmas durante 4s.\n
         - Evite os fantasmas, se colidir com um, você perde.\n
         - Cada comida vale 15 pontos.\n
-        - Cada comida especial vale 35 pontos.
-        - Pontuação máxima: 1000 pontos.\n
-        - Pressione ESC para sair a qualquer momento.
+        - Cada comida especial vale 35 pontos.\n
+        - Pontuação máxima: 1940 pontos.\n
+        - Pressione ESC para sair do jogo.
     '''
     messagebox.showinfo("Instruções", texto)
 
