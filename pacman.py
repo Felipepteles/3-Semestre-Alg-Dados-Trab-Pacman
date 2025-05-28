@@ -6,37 +6,42 @@ import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
 
-posicaoX = 5
-posicaoY = 5
+posicaoX = 7
+posicaoY = 7
 nome = ""
-parede = " 🟦"
-comida = " ▫ "
-fantasma = " 👻"
+parede = "🟦"
+comida = "▫"
+fantasma = "👻"
 cereja = "🍒"
 pacman_atual = None
+direcao_atual = None
+pacman_movimento = False
 pontos = 0
 status = None
-velocidade = 550
+velocidade_fantasma = 550
 cabecalho = ["Nome", "Pontos", "Duracao", "Status"]
 lista = []
 fantasmas_info = {}  
-width = 660
-height = 660
+width = 800
+height = 800
 
 matriz = [
-    [" 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"],
-    [" 🟦"," 👻"," ▫ "," ▫ ","🍒"," 🟦"," ▫ "," ▫ "," ▫ "," 👻"," 🟦"],
-    [" 🟦"," ▫ "," 🟦"," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," 🟦"," ▫ "," 🟦"],
-    [" 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"],
-    [" 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"," ▫ "," 🟦"],
-    [" "," ▫ "," ▫ "," ▫ "," ▫ ","   "," ▫ "," ▫ "," ▫ "," ▫ "," "],
-    [" 🟦"," ▫ "," 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"," ▫ "," 🟦"],
-    [" 🟦"," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," ▫ "," 🟦"],
-    [" 🟦"," ▫ "," 🟦"," ▫ "," ▫ "," 🟦"," ▫ "," ▫ "," 🟦"," ▫ "," 🟦"],
-    [" 🟦"," 👻"," ▫ "," ▫ "," ▫ "," 🟦","🍒"," ▫ "," ▫ "," 👻"," 🟦"],
-    [" 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"," 🟦"]
+    ["🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦"],
+    ["🟦","🍒","▫","▫","▫","🟦","▫","▫","▫","🟦","▫","▫","▫","🍒","🟦"],
+    ["🟦","▫","🟦","🟦","▫","🟦","▫","🟦","▫","🟦","▫","🟦","🟦","▫","🟦"],
+    ["🟦","▫","🟦","👻","▫","▫","▫","▫","▫","▫","▫","👻","🟦","▫","🟦"],
+    ["🟦","▫","▫","▫","▫","🟦","▫","🟦","▫","🟦","▫","▫","▫","▫","🟦"],
+    ["🟦","▫","🟦","🟦","▫","🟦","▫","🟦","▫","🟦","▫","🟦","🟦","▫","🟦"],
+    ["","▫","▫","▫","▫","▫","▫","▫","▫","▫","▫","▫","▫","▫",""],
+    ["🟦","▫","🟦","🟦","▫","🟦","▫","▫","▫","🟦","▫","🟦","🟦","▫","🟦"],
+    ["🟦","▫","▫","▫","▫","▫","▫","▫","▫","▫","▫","▫","▫","▫","🟦"],
+    ["🟦","▫","🟦","🟦","▫","🟦","▫","🟦","▫","🟦","▫","🟦","🟦","▫","🟦"],
+    ["🟦","▫","▫","▫","▫","▫","▫","▫","▫","▫","▫","▫","▫","▫","🟦"],
+    ["🟦","▫","🟦","👻","▫","▫","▫","▫","▫","▫","▫","👻","🟦","▫","🟦"],
+    ["🟦","▫","🟦","🟦","▫","🟦","▫","🟦","▫","🟦","▫","🟦","🟦","▫","🟦"],
+    ["🟦","🍒","▫","▫","▫","🟦","▫","▫","▫","🟦","▫","▫","▫","🍒","🟦"],
+    ["🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦","🟦"]
 ]
-
 
 def ler_csv():
     if os.path.exists("lista.csv"):
@@ -96,7 +101,7 @@ def perdeu():
     exit()
 
 def comeu():
-    global pontos, velocidade
+    global pontos, velocidade_fantasma, tipo_colisao
     if tipo_colisao == 2:
         matriz[posicaoX][posicaoY] = "   "
         pontos += 15
@@ -105,16 +110,16 @@ def comeu():
         matriz[posicaoX][posicaoY] = "   "
         pontos += 35
         pontuacao_label.config(text=f"Pontos: {pontos}")
-        velocidade = 1100
-        janela.after(4000, restaura_velocidade)
+        velocidade_fantasma = 1100
+        janela.after(4000, restaura_velocidade_fantasma)
 
-def restaura_velocidade():
-    global velocidade
-    velocidade = 550
+def restaura_velocidade_fantasma():
+    global velocidade_fantasma
+    velocidade_fantasma = 550
     
 def ganhou():
     global status
-    if pontos >= 1000 and status != "Venceu":
+    if pontos >= 1940 and status != "Venceu":
         status = "Venceu"
         salva_csv()
         messagebox.showinfo("Parabéns!", f"Você venceu!\nPontuação final: {pontos}")
@@ -126,8 +131,6 @@ def mover_fantasmas():
     direcoes_possiveis = [(-1, 0), (1, 0), (0, -1), (0, 1)]
     novas_posicoes = {}
     novas_infos = {}
-
-    #fantasmas_posicoes = list(fantasmas_info.keys()) if fantasmas_info else []
 
     if not fantasmas_info:
         for linha in range(len(matriz)):
@@ -168,50 +171,26 @@ def mover_fantasmas():
         matriz[linha][coluna] = simbolo
 
 def setas(tecla):
-    global posicaoX, posicaoY, tipo_colisao, pacman_atual
-    deslocamento_linha = 0
-    deslocamento_coluna = 0
+    global posicaoX, posicaoY, tipo_colisao, pacman_atual, direcao_atual, pacman_movimento
+    
+    if tecla.keysym in ["Up", "Down", "Left", "Right"]:
+        direcao_atual = tecla.keysym
 
-    if tecla.keysym == "Up":
-        deslocamento_linha = -1
-        pacman_atual = pacman_cimapng
-    elif tecla.keysym == "Down":
-        deslocamento_linha = 1
-        pacman_atual = pacman_baixopng
-    elif tecla.keysym == "Left":
-        deslocamento_coluna = -1
-        pacman_atual = pacman_esqpng
-    elif tecla.keysym == "Right":
-        deslocamento_coluna = 1
-        pacman_atual = pacman_dirpng
+        if tecla.keysym == "Up":
+            pacman_atual = pacman_cimapng
+        elif tecla.keysym == "Down":
+            pacman_atual = pacman_baixopng
+        elif tecla.keysym == "Left":
+            pacman_atual = pacman_esqpng
+        elif tecla.keysym == "Right":
+            pacman_atual = pacman_dirpng
+        
+        if not pacman_movimento:
+            pacman_movimento = True
+            loop_pacman() 
     elif tecla.keysym == "Escape":
         exit()
-    else:
-        return
-    
-    nova_posicaoX = posicaoX + deslocamento_linha
-    nova_posicaoY = posicaoY + deslocamento_coluna
-    
-    if nova_posicaoX == 5 and nova_posicaoY < 0:
-        nova_posicaoY = 10
-    elif nova_posicaoX == 5 and nova_posicaoY > 10:
-        nova_posicaoY = 0
-
-    tipo_colisao = colisao(nova_posicaoX, nova_posicaoY)
-
-    if tipo_colisao == 0:
-        posicaoX = nova_posicaoX
-        posicaoY = nova_posicaoY
-    elif tipo_colisao == 2 or tipo_colisao == 4:
-        posicaoX = nova_posicaoX
-        posicaoY = nova_posicaoY
-        comeu()
-    elif tipo_colisao == 3:
-        posicaoX = nova_posicaoX
-        posicaoY = nova_posicaoY
-        perdeu()
-    tabela(posicaoX, posicaoY)
-    
+   
 def exibir_ranking():
     vencedores = [jogador for jogador in lista if jogador["Status"] == "Venceu"]
     vencedores_ordenados = sorted(vencedores, key=lambda grupo: grupo['Duracao'])[:10]
@@ -235,7 +214,7 @@ def exibir_instrucoes():
         - Evite os fantasmas, se colidir com um, você perde.\n
         - Cada comida vale 15 pontos.\n
         - Cada comida especial vale 35 pontos.
-        - Pontuação máxima: 970 pontos.\n
+        - Pontuação máxima: 1000 pontos.\n
         - Pressione ESC para sair a qualquer momento.
     '''
     messagebox.showinfo("Instruções", texto)
@@ -253,6 +232,15 @@ def iniciar_jogo():
     tabela(posicaoX, posicaoY)
     janela.bind("<KeyPress>", setas)
     loop_fantasmas()
+    
+    janela.update_idletasks()
+    janela_tamanho_width = janela.winfo_width()
+    janela_tamanho_height = janela.winfo_height()
+    monitor_width = janela.winfo_screenwidth()
+    monitor_height = janela.winfo_screenheight()
+    x = (monitor_width - janela_tamanho_width) // 2
+    y = (monitor_height - janela_tamanho_height) // 2
+    janela.geometry(f"{janela_tamanho_width}x{janela_tamanho_height}+{x}+{y}")
     
 def menu():
     global frame_menu, nome, botao_iniciar, botao_ranking, botao_instrucoes
@@ -299,8 +287,8 @@ def exibir_janela():
     canvas = tk.Canvas(janela, width=width, height=height, bg="black")
     canvas.pack()
 
-    tamanhox = int(width / 11)
-    tamanhoy = int(height / 11)
+    tamanhox = int(width / len(matriz[0]))
+    tamanhoy = int(height / len(matriz))
     fantasmapng = ImageTk.PhotoImage(Image.open("img/fantasma.png").resize((tamanhox,tamanhoy)))
     pacman_cimapng = ImageTk.PhotoImage(Image.open("img/pacmanc.png").resize((tamanhox,tamanhoy)))
     pacman_baixopng = ImageTk.PhotoImage(Image.open("img/pacmanb.png").resize((tamanhox,tamanhoy)))
@@ -311,12 +299,52 @@ def exibir_janela():
     cerejapng = ImageTk.PhotoImage(Image.open("img/cereja.png").resize((tamanhox,tamanhoy)))
     
     pacman_atual = pacman_dirpng
-      
+         
 def loop_fantasmas():
     mover_fantasmas()
     tabela(posicaoX, posicaoY)
     if status == None :
-        janela.after(velocidade, loop_fantasmas)
+        janela.after(velocidade_fantasma, loop_fantasmas)
+
+def loop_pacman():
+    global posicaoX, posicaoY, tipo_colisao, pacman_movimento
+ 
+    deslocamento_linha = 0
+    deslocamento_coluna = 0
+    
+    if direcao_atual == "Up":
+        deslocamento_linha = -1
+    elif direcao_atual == "Down":
+        deslocamento_linha = 1
+    elif direcao_atual == "Left":
+        deslocamento_coluna = -1
+    elif direcao_atual == "Right":
+        deslocamento_coluna = 1
+
+    nova_posicaoX = posicaoX + deslocamento_linha
+    nova_posicaoY = posicaoY + deslocamento_coluna
+
+    if nova_posicaoX == 6 and nova_posicaoY < 0:
+        nova_posicaoY = 14
+    elif nova_posicaoX == 6 and nova_posicaoY > 14:
+        nova_posicaoY = 0
+
+    tipo_colisao = colisao(nova_posicaoX, nova_posicaoY)
+
+    if tipo_colisao == 0:
+        posicaoX = nova_posicaoX
+        posicaoY = nova_posicaoY
+    elif tipo_colisao == 2 or tipo_colisao == 4:
+        posicaoX = nova_posicaoX
+        posicaoY = nova_posicaoY
+        comeu()
+    elif tipo_colisao == 3:
+        posicaoX = nova_posicaoX
+        posicaoY = nova_posicaoY
+        perdeu()
+
+    tabela(posicaoX, posicaoY)
+    janela.after(350, loop_pacman)
 
 exibir_janela()
 menu()
