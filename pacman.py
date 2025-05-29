@@ -345,7 +345,7 @@ def loop_pacman():
         perdeu()
 
     tabela(posicaoX, posicaoY)
-    janela.after(350, loop_pacman)
+    janela.after(300, loop_pacman)
 
 exibir_janela()
 menu()
