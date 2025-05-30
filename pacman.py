@@ -97,7 +97,7 @@ def perdeu():
     status = "Perdeu"
     tabela(posicaoX, posicaoY)
     salva_csv()
-    messagebox.showinfo("Fim de jogo", f"Você perdeu!\nPontuação final: {pontos}")
+    messagebox.showinfo(f"Fim de jogo! Você perdeu!\nPontuação final: {pontos}")
     exit()
 
 def comeu():
@@ -122,7 +122,7 @@ def ganhou():
     if pontos >= 1940 and status != "Venceu":
         status = "Venceu"
         salva_csv()
-        messagebox.showinfo("Parabéns!", f"Você venceu!\nPontuação final: {pontos}")
+        messagebox.showinfo(f"Parabéns! Você venceu!\nPontuação final: {pontos}")
         exit()
 
 def mover_fantasmas():
